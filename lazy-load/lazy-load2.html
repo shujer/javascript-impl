@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LazyLoad</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      .padding-top {
+        height: 100%;
+      }
+      .img-list img {
+        display: block;
+        width: 100%;
+        height: 300px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="padding-top"></div>
+    <div class="img-list">
+      <img
+        data-src="https://pic4.zhimg.com/80/v2-063c1061ecf0385c19d2075c27cb8693_1440w.png"
+      />
+      <img
+        data-src="https://images.unsplash.com/photo-1569389397653-c04fe624e663?ixid=MnwxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHwxfHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
+      />
+      <img
+        data-src="https://images.unsplash.com/photo-1618826984804-232bdb22ad2f?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwyfHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
+      />
+      <img
+        data-src="https://images.unsplash.com/photo-1618777390832-5f27e30d1ca2?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwzfHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
+      />
+      <img
+        data-src="https://images.unsplash.com/photo-1603993097397-89c963e325c7?ixid=MnwxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
+      />
+      <img
+        data-src="https://images.unsplash.com/photo-1618759047667-ef9bf8828d98?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHw3fHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60"
+      />
+    </div>
+    <script>
+      const lazyLoadIntersection = new IntersectionObserver((entries) => {
+        entries.forEach((item, index) => {
+          if (item.isIntersecting) {
+            item.target.src = item.target.dataset.src;
+            lazyLoadIntersection.unobserve(item.target);
+          }
+        });
+      });
+      const imgList = document.querySelectorAll(".img-list img");
+      Array.from(imgList).forEach((item) => {
+        lazyLoadIntersection.observe(item);
+      });
+    </script>
+  </body>
+</html>
