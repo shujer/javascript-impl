@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CORS</title>
+  </head>
+  <body>
+    <script>
+      function jsonp(url, callback) {
+        const cb = `jsonp_${new Date().getTime()}`;
+        const script = document.createElement("script");
+        window[cb] = (data) => {
+          document.body.removeChild(script);
+          delete window[cb];
+          callback && callback(data);
+        };
+        script.src = `${url}?callback=${cb}`;
+        document.body.appendChild(script);
+      }
+      jsonp("http://127.0.0.1:3011/script", (result) => {
+        console.log(result);
+      });
+    </script>
+  </body>
+</html>
