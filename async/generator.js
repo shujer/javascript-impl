@@ -32,13 +32,14 @@ function run(gen) {
       if (res.done) {
         return resolve(res.value);
       }
-      Promise.resolve(res.value).then(
+      let value = toPromise(res.value);
+      value.then(
         (val) => {
           console.log(val);
           _next(val);
         },
         (err) => {
-          g.throw(err);
+          reject(err);
         }
       );
     }
@@ -46,3 +47,26 @@ function run(gen) {
   });
 }
 run(myGenerator);
+
+// 兼容回调
+function isPromise(obj) {
+  typeof obj.then === "function";
+}
+
+function toPromise(obj) {
+  if (isPromise(obj)) return obj;
+  return thunkToPromise(obj);
+}
+
+// https://github.com/mqyqingfeng/Blog/issues/99
+
+function thunkToPromise(obj) {
+  return new Promise((resolve, reject) => {
+    obj((err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+    });
+  });
+}
