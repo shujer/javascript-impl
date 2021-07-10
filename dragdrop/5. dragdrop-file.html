@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File</title>
+    <style>
+      #container {
+        width: 400px;
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        background-color: azure;
+        border: 1px solid #333;
+      }
+      #result-list {
+        display: flex;
+        flex-direction: column;
+      }
+      #result-list .item {
+        height: 30px;
+        line-height: 30px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">DRAG FILE HERE</div>
+    <div id="result-list"></div>
+    <script>
+      const showItems = (files) => {
+        const list = document.getElementById("result-list");
+        list.innerHTML = "";
+        files.forEach((file) => {
+          const link = document.createElement("a");
+          link.classList.add("item");
+          link.innerText = file.name;
+          const url = URL.createObjectURL(file);
+          link.href = url;
+          link.download = file.name;
+          list.appendChild(link);
+        });
+      };
+      const dragover = (ev) => {
+        ev.preventDefault();
+      };
+      const drop = (ev) => {
+        ev.preventDefault();
+        const files = ev.dataTransfer.files || [];
+        showItems(Array.from(files));
+      };
+      const dropRef = document.getElementById("container");
+      dropRef.addEventListener("dragover", dragover);
+      dropRef.addEventListener("drop", drop);
+    </script>
+  </body>
+</html>

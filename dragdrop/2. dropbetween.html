@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag Drop API - Drop In</title>
+    <style>
+      .container {
+        width: 100%;
+        position: relative;
+      }
+
+      #target {
+        width: 500px;
+        height: 300px;
+        background-color: pink;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .target-item {
+        width: 50px;
+        height: 50px;
+        border: 1px dotted palevioletred;
+        border-radius: 50%;
+        background-color: white;
+        margin: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #source {
+        width: 45px;
+        height: 45px;
+        background-color: tomato;
+        border-radius: 50%;
+        z-index: 1;
+      }
+      #source.dragging {
+        opacity: 0.1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="target">
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+        <div class="target-item"></div>
+      </div>
+      <div id="source" draggable="true"></div>
+    </div>
+    <script>
+      const dragRef = document.getElementById("source");
+      const dragstart = (ev) => {
+        ev.target.classList.add("dragging");
+        ev.dataTransfer.dropEffect = "move";
+      };
+      const dragend = (ev) => {
+        ev.target.classList.remove("dragging");
+      };
+      dragRef.addEventListener("dragstart", dragstart);
+      dragRef.addEventListener("dragend", dragend);
+
+      const dragover = (ev) => {
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "move";
+      };
+      const drop = (ev) => {
+        ev.preventDefault();
+        ev.target.appendChild(dragRef);
+      };
+      const dropItems = document.querySelectorAll(".target-item");
+      for (let i = 0; i < dropItems.length; i++) {
+        dropItems[i].addEventListener("dragover", dragover);
+        dropItems[i].addEventListener("drop", drop);
+      }
+    </script>
+  </body>
+</html>

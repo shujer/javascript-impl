@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag Drop API - Drop In</title>
+    <style>
+      .container {
+        width: 100%;
+        position: relative;
+      }
+
+      #target {
+        width: 500px;
+        height: 300px;
+        background-color: pink;
+      }
+
+      #source {
+        width: 30px;
+        height: 30px;
+        background-color: tomato;
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      #source.dragging {
+        opacity: 0.1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="target"></div>
+      <div id="source" draggable="true"></div>
+    </div>
+    <script>
+      /**
+       * https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API
+       * https://javascript.info/mouse-drag-and-drop
+       * - target: droppable
+       * - source: draggable
+       * 拖拽的整体思路：
+       * - dragstart 标记开始拖动，记录可拖拽对象的当前坐标
+       * - dragging 标记正在拖动，记录实时的坐标
+       * - drop 标记结束拖动，清除监听事件，放置
+       * - 优化：容器可滚动
+       */
+      /**
+       * 1. 定义可拖拽的对象
+       *    - 标记 draggable 可拖拽
+       *    - 注册 dragstart 监听事件
+       *      - 定义开始状态
+       *      - 修改样式
+       */
+      const dragRef = document.getElementById("source");
+      //当用户开始拖拽一个元素或选中的文本时触发
+      const dragstart = (ev) => {
+        ev.target.classList.add("dragging");
+        ev.dataTransfer.dropEffect = "move";
+      };
+      // 当拖拽操作结束时触发 (比如松开鼠标按键或敲“Esc”键)
+      const dragend = (ev) => {
+        ev.target.classList.remove("dragging");
+      };
+      dragRef.addEventListener("dragstart", dragstart);
+      dragRef.addEventListener("dragend", dragend);
+      /**
+       * 2. 定义可释放区域
+       *  - 注册 dragover 监听事件
+       *  - 注册 drop 监听事件
+       *  - preventDefault 阻止触摸/光标等默认事件
+       */
+      const dropRef = document.getElementById("target");
+      //当元素或选中的文本被拖到一个可释放目标上时触发
+      const dragover = (ev) => {
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "move";
+      };
+      //当元素或选中的文本在可释放目标上被释放时触发
+      const drop = (ev) => {
+        ev.preventDefault();
+        ev.target.appendChild(dragRef);
+      };
+      dropRef.addEventListener("dragover", dragover);
+      dropRef.addEventListener("drop", drop);
+    </script>
+  </body>
+</html>
