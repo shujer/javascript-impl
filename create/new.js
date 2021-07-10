@@ -5,10 +5,16 @@
  * 执行构造函数中的代码（为新对象添加属性）
  * 返回新对象
  */
-function create(ctx) {
-  let obj = new Object();
-  let Con = [].shift.call(arguments);
-  obj.__proto__ = Con.prototype;
-  let result = Con.apply(obj, arguments);
-  return typeof result === "object" ? result : obj;
+function create() {
+  let obj = null;
+  let result = null;
+  let Con = Array.prototype.shift.call(arguments);
+  if (typeof Con !== "function") {
+    throw TypeError("invalid constructor");
+  }
+  obj = Object.create(Con.prototype);
+  result = Con.apply(obj, arguments);
+  return result && (typeof result === "object" || typeof result === "function")
+    ? result
+    : obj;
 }
