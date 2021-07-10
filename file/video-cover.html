@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload</title>
+  </head>
+  <body>
+    <input id="input" type="file" />
+    <img id="poster" />
+    <script>
+      const input = document.querySelector("#input");
+      const img = document.querySelector("#poster");
+      const WIDTH = 320;
+      const HEIGHT = 180;
+      /**
+       * 截取视频封面图
+       */
+      const capturePoster = (dataUrl) => {
+        let video = document.createElement("video");
+        video.autoplay = "auto";
+        video.width = WIDTH;
+        video.height = HEIGHT;
+        video.style.objectFit = "cover";
+        video.currentTime = 1;
+        video.src = dataUrl;
+        video.onloadeddata = () => {
+          if (!video) return;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = WIDTH;
+          canvas.height = HEIGHT;
+          ctx.clearRect(0, 0, WIDTH, HEIGHT);
+          ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
+          img.src = canvas.toDataURL("image/png");
+          video.src = null;
+        };
+        video.onerror = (e) => {
+          console.log(e);
+        };
+      };
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        capturePoster(e.target.result);
+      };
+      input.addEventListener("change", (e) => {
+        const files = e.target.files || [];
+        const file = files[0];
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
