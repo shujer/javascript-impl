@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload</title>
+  </head>
+  <body>
+    <input id="input" type="file" />
+    <img id="poster" />
+    <script>
+      const input = document.querySelector("#input");
+      const img = document.querySelector("#poster");
+      const LIMIT_WIDTH = 710;
+      const LIMIT_HEIGHT = 2668;
+      const LIMIT_SIZE = 800;
+      const QUALITY_ARR = [0.92, 0.82, 0.72, 0.62];
+      const VALID_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+      const getImageData = (blob) => {
+        return new Promise((resolve, reject) => {
+          const size = blob.size;
+          const type = blob.type;
+          // 2. blobToUrl
+          const url = URL.createObjectURL(blob);
+          // 3. load image
+          const image = new Image();
+          image.onload = () => {
+            const naturalWidth = image.width;
+            const naturalHeight = image.height;
+            URL.revokeObjectURL(url);
+            resolve({ naturalHeight, naturalWidth, image, size, type });
+          };
+          image.onerror = () => {
+            reject();
+          };
+          image.src = url;
+        });
+      };
+
+      const compressBySize = (options) => {
+        return new Promise((resolve) => {
+          const { naturalWidth, naturalHeight, image, type } = options;
+          let width = naturalWidth,
+            height = naturalHeight;
+          if (naturalWidth > LIMIT_WIDTH && naturalHeight > LIMIT_HEIGHT) {
+            const ratio = naturalWidth / naturalHeight;
+            if (ratio < LIMIT_WIDTH / LIMIT_HEIGHT) {
+              width = LIMIT_HEIGHT * ratio;
+              height = LIMIT_HEIGHT;
+            } else {
+              width = LIMIT_WIDTH;
+              height = LIMIT_WIDTH / ratio;
+            }
+          }
+          let canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          let ctx = canvas.getContext("2d");
+          ctx.drawImage(image, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            resolve({ blob, width, height, canvas });
+          }, type);
+        });
+      };
+      const compressByQuality = (options) => {
+        const { blob, width, height, canvas } = options;
+        let type = blob.type;
+        if (type === "image/png") {
+          type = "image/jpeg";
+        }
+        let arr = [...QUALITY_ARR];
+        const chain = (quality, data) => {
+          return new Promise((resolve) => {
+            let canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(data, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                resolve(blob);
+              },
+              type,
+              quality
+            );
+          });
+        };
+        return Promise.resolve().then(() => {
+          let quality = arr.shift();
+          return chain(quality, canvas).then((blob) => {
+            if (arr.length === 0 || blob.size <= LIMIT_SIZE) {
+              return blob;
+            } else {
+              let quality = arr.shift();
+              return chain(quality, canvas);
+            }
+          });
+        });
+      };
+      const compress = async (file) => {
+        const blob = new Blob([file], { type: file.type });
+        const imageData = await getImageData(blob);
+        const preFile = await compressBySize(imageData);
+        if (preFile.blob.size < LIMIT_SIZE) {
+          return preFile.blob;
+        }
+        const finalFile = await compressByQuality({
+          ...preFile,
+          image: imageData.image,
+        });
+        return finalFile;
+      };
+      input.addEventListener("change", (e) => {
+        const files = e.target.files || [];
+        const file = files[0];
+        compress(file)
+          .then((blob) => {
+            console.log(blob);
+            let url = URL.createObjectURL(blob);
+            img.onload = () => {
+              URL.revokeObjectURL(url);
+            };
+            img.src = url;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    </script>
+  </body>
+</html>

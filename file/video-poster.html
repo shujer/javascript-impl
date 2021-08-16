@@ -17,37 +17,32 @@
       /**
        * 截取视频封面图
        */
-      const capturePoster = (dataUrl) => {
+      const capturePoster = (file) => {
+        let blob = new Blob([file], { type: file.type });
+        let videoSrc = URL.createObjectURL(blob);
         let video = document.createElement("video");
         video.autoplay = "auto";
         video.width = WIDTH;
         video.height = HEIGHT;
         video.style.objectFit = "cover";
         video.currentTime = 1;
-        video.src = dataUrl;
-        video.onloadeddata = () => {
-          if (!video) return;
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
+        video.muted = true;
+        video.onloadeddata = (ev) => {
+          let canvas = document.createElement("canvas");
           canvas.width = WIDTH;
           canvas.height = HEIGHT;
-          ctx.clearRect(0, 0, WIDTH, HEIGHT);
+          let ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#fff";
           ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
           img.src = canvas.toDataURL("image/png");
           video.src = null;
         };
-        video.onerror = (e) => {
-          console.log(e);
-        };
-      };
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        capturePoster(e.target.result);
+        video.src = videoSrc;
       };
       input.addEventListener("change", (e) => {
         const files = e.target.files || [];
         const file = files[0];
-        reader.readAsDataURL(file);
+        capturePoster(file);
       });
     </script>
   </body>
