@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #box {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        left: 0;
+        top: 0;
+        background-color: cadetblue;
+        transform: translateX(300px) rotateZ(30deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="box"></div>
+    <script>
+      const container = document.querySelector("#container");
+      const box = document.querySelector("#box");
+      let position = { x: 0, y: 0 };
+      let diff = { x: 0, y: 0 };
+      let dragging = null;
+      const setPosition = (target, clientX, clientY) => {
+        position.x = clientX - diff.x;
+        position.y = clientY - diff.y;
+        target.style.left = position.x + "px";
+        target.style.top = position.y + "px";
+      };
+      const onMouseDown = (e) => {
+        dragging = e.target;
+        diff = {
+          x: e.clientX - dragging.offsetLeft,
+          y: e.clientY - dragging.offsetTop,
+        };
+      };
+      const onMouseOver = (e) => {
+        if (!dragging) {
+          return;
+        }
+        setPosition(dragging, e.clientX, e.clientY);
+      };
+      const onMouseUp = (e) => {
+        if (!dragging) return;
+        if (e.target.id === "container") {
+          setPosition(dragging, e.clientX, e.clientY);
+        }
+        dragging = null;
+      };
+      document.addEventListener("mousedown", onMouseDown);
+      document.addEventListener("mouseover", onMouseOver);
+      document.addEventListener("mouseup", onMouseUp);
+    </script>
+  </body>
+</html>
